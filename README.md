@@ -23,5 +23,4 @@ To install the encoded files to a target location, run:
 
 ```sh
 make install INSTALL_DIR=/path/to/dir
-
 ```
