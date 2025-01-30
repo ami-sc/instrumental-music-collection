@@ -1,49 +1,56 @@
-INSTALL_DIR = ./install
+# ---- Project Settings --------------------------------------------------------
 
-SONGS_DIR = ./data/raw/songs
-ARTWORK_DIR = ./data/raw/artwork
-METADATA_DIR = ./data/processed/01__metadata
-ENCODE_DIR = ./data/processed/02__encode
+B2_BUCKET    =
+PROJECT_NAME =
 
-METADATA_FILE = ./data/raw/metadata.tsv
-SONG_FILES = $(wildcard $(SONGS_DIR)/*)
-METADATA_FILES = $(addsuffix .txt, $(addprefix $(METADATA_DIR)/, $(basename $(notdir $(SONG_FILES)))))
-ENCODE_FILES = $(addsuffix .flac, $(addprefix $(ENCODE_DIR)/, $(basename $(notdir $(SONG_FILES)))))
+INSTALL_DIR =
 
-.PHONY: install all encode metadata clean
+B2_TRACKS  = $(B2_BUCKET)/$(PROJECT_NAME)/tracks
+B2_ARTWORK = $(B2_BUCKET)/$(PROJECT_NAME)/artwork
 
-# **** Step 01 - Metadata Generation ****
+# ---- Makefile Settings -------------------------------------------------------
 
-metadata: $(METADATA_FILES)
+TRACK_LIST := $(notdir $(shell b2 ls $(B2_TRACKS)))
+FLAC_FILES := $(addprefix out/flac/, $(addsuffix .flac, $(TRACK_LIST)))
 
-$(METADATA_FILES): $(METADATA_FILE) ./src/01__metadata.sh
-	@./src/01__metadata.sh \
-		-i $(METADATA_FILE) \
-		-o $(METADATA_DIR)
+GREEN = \e[32m
+CYAN  = \e[36m
+END   = \e[0m
 
-# **** Step 02 - Encode ****
+.PHONY: all install
+.PRECIOUS: out/flac/%.flac
 
-encode: $(ENCODE_FILES)
+# ---- Pipeline ----------------------------------------------------------------
 
-$(ENCODE_FILES): $(ENCODE_DIR)/%.flac: $(SONGS_DIR)/% $(METADATA_FILES) ./src/02__encode.sh
-	@./src/02__encode.sh \
-		-i $< \
-		-m $(addsuffix .txt, $(addprefix $(METADATA_DIR)/, $(basename $(notdir $<)))) \
-		-a $(ARTWORK_DIR) \
-		-o $@
-
-# **** Step 03 - Install ****
+all: $(FLAC_FILES)
 
 install:
-	@./src/install.sh \
-		-r $(ENCODE_DIR) \
-		-m $(METADATA_DIR) \
-		-i "$(INSTALL_DIR)"
+	@mamba run -n Instrumental_Music_Collection python src/install.py \
+		-td out/flac \
+		-m  data/metadata.csv \
+		-d  $(INSTALL_DIR)
 
-all: metadata encode
+data/tracks/%.track:
+	@printf "%b %s\n" "$(CYAN)[ > ]$(END) Download" "$(notdir $@)"
+	@b2 file download --no-progress \
+		$(B2_BUCKET)/$(PROJECT_NAME)/tracks/$(basename $(notdir $@)) \
+		$@ > /dev/null
+	@printf "%b %s\n" "$(GREEN)[ ✓ ]$(END) Download" "$(notdir $@)"
 
-clean:
-	rm -rf $(ENCODE_DIR)
-	rm -rf $(METADATA_DIR)
-	mkdir $(ENCODE_DIR)
-	mkdir $(METADATA_DIR)
+data/artwork:
+	@printf "%b\n" "$(CYAN)[ > ]$(END) Download Artwork"
+	@mkdir -p $@
+	@b2 sync --no-progress \
+		$(B2_ARTWORK) \
+		$@ > /dev/null
+	@printf "%b\n" "$(GREEN)[ ✓ ]$(END) Download Artwork"
+
+out/flac/%.flac: data/tracks/%.track data/metadata.csv | data/artwork
+	@printf "%b %s\n" "$(CYAN)[ > ]$(END) Encode" "$(notdir $@)"
+	@mamba run -n Instrumental_Music_Collection python src/encode.py \
+		-t  $< \
+		-id $(basename $(notdir $@)) \
+		-m  data/metadata.csv \
+		-a  data/artwork \
+		-o  $@
+	@printf "%b %s\n" "$(GREEN)[ ✓ ]$(END) Encode" "$(notdir $@)"
