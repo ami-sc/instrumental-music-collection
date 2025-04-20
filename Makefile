@@ -26,9 +26,9 @@ all: $(FLAC_FILES)
 
 install:
 	@mamba run -n Instrumental_Music_Collection python src/install.py \
-		-td out/flac \
+		-td out \
 		-m  data/metadata.csv \
-		-d  $(INSTALL_DIR)
+		-d  "$(INSTALL_DIR)"
 
 data/tracks/%.track:
 	@printf "%b %s\n" "$(CYAN)[ > ]$(END) Download" "$(notdir $@)"

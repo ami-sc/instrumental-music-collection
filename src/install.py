@@ -56,7 +56,7 @@ def install():
 
         track_path = os.path.join(
             album_dir,
-            f"{disc_number:>02}-{track_number:>02} {song_title}")
+            f"{disc_number:>02}-{track_number:>02} {song_title}.flac")
 
         cmd = [
             "cp",
