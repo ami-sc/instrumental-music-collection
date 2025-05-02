@@ -27,19 +27,19 @@ def encode():
         required = True)
     parser.add_argument(
         "-m", "--metadata_file",
-        type=str,
-        help="Path to .csv metadata file.",
-        required=True)
+        type = str,
+        help = "Path to .csv metadata file.",
+        required = True)
     parser.add_argument(
-        "-a", "--artwork_dir",
-        type=str,
-        help="Path to directory containing artwork files.",
-        required=True)
+        "-a", "--artwork_file",
+        type = str,
+        help = "Path to .png artwork file.",
+        required = True)
     parser.add_argument(
         "-o", "--output_file",
-        type=str,
-        help="Path to .csv file to store individual sample metadata.",
-        required=True)
+        type = str,
+        help = "Path to encoded output .flac file.",
+        required = True)
     args = parser.parse_args()
 
     metadata_df = pd.read_csv(args.metadata_file)
@@ -90,13 +90,14 @@ def encode():
     # Write the new metadata.
     cmd = [
         "metaflac",
-        f"--set-tag=ALBUM={track_metadata['Album'].item()}",
+        "--set-tag=ALBUM=Instrumental Music Collection",
+        "--set-tag=ALBUMARTIST=Various Artists",
         f"--set-tag=ARTIST={track_metadata['Artist'].item()}",
-        f"--set-tag=TITLE={track_metadata['Title'].item()}",
+        f"--set-tag=TITLE={track_metadata['Title'].item()} [From {track_metadata['Album'].item()}]",
         f"--set-tag=TRACKNUMBER={track_metadata['Track'].item()}",
         f"--set-tag=DATE={track_metadata['Year'].item()}",
-        f"--set-tag=DISCNUMBER={track_metadata['Disc'].item()}",
-        f"--import-picture-from={args.artwork_dir}/{track_metadata['Artwork File'].item()}",
+        "--set-tag=DISCNUMBER=1",
+        f"--import-picture-from={args.artwork_file}",
         args.output_file
     ]
     run_cmd(cmd)

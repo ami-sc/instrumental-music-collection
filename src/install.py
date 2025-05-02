@@ -39,24 +39,22 @@ def install():
     for track in track_list:
         track_metadata = metadata_df[metadata_df["Code"] == track.split(".")[0]]
 
-        # Create album directory (if it does not exist).
-        album_dir = os.path.join(args.dir, track_metadata["Album"].item())
+        # Create output directory (if it does not exist).
         cmd = [
             "mkdir",
             "-p",
-            album_dir
+            args.dir
         ]
         run_cmd(cmd)
 
         # Copy song to target directory.
-        disc_number = track_metadata["Disc"].item()
         track_number = track_metadata["Track"].item()
-        song_title = track_metadata["Title"].item()
-        song_title = song_title.replace("/", " - ")
+        album_title = track_metadata["Album"].item().replace("/", " - ")
+        song_title = track_metadata["Title"].item().replace("/", " - ")
 
         track_path = os.path.join(
-            album_dir,
-            f"{disc_number:>02}-{track_number:>02} {song_title}.flac")
+            args.dir,
+            f"{track_number:>02} {song_title} [From {album_title}].flac")
 
         cmd = [
             "cp",
