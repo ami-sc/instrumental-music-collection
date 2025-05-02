@@ -16,7 +16,7 @@
             &nbsp;Starlane
         </a>
         &emsp;
-        <a align="center" href="https://github.com">
+        <a align="center" href="https://github.com/ami-sc/instrumental-music-collection">
             <img height="16" width="16" src="https://cdn.simpleicons.org/github/00B8FF/00B8FF"/>
             &nbsp;GitHub
         </a>
