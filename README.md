@@ -12,7 +12,7 @@
 <div align="center">
     <p>
         <a align="center" href="https://git.ami.sc/ami/instrumental-music-collection">
-            <img height="16" width="16" src="https://cdn.simpleicons.org/git/00B8FF/00B8FF"/>
+            <img height="16" width="16" src="https://cdn.simpleicons.org/gitea/00B8FF/00B8FF"/>
             &nbsp;Starlane
         </a>
         &emsp;
