@@ -7,6 +7,8 @@
     <h1 align="center">Instrumental Music Collection</h1>
 </div>
 
+<br>
+
 <div align="center">
     <p>
         <a align="center" href="https://git.ami.sc/ami/instrumental-music-collection">
