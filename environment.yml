@@ -1,0 +1,6 @@
+name: IMS
+channels:
+  - conda-forge
+dependencies:
+  - pandas
+  - python
